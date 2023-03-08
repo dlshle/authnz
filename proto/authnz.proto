@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package com.github.dlshle.authnz;
+
+option go_package = "github.com/dlshle/authnz/proto";
+
+message Principle {
+    string id = 1;
+    string user_id = 2;
+}
+
+message Group {
+    string id = 1;
+    repeated Attribute attributes = 2;
+}
+
+message Attribute {
+    string key = 1;
+    string value = 2;
+}
+
+enum Operation {
+    EQ = 0;
+    LT = 1;
+    GT = 2;
+    LTE = 3;
+    GTE = 4;
+    CONTAINS = 5;
+}
+
+message PolicyCondition {
+    oneof condition {
+      HasAttributesCondition has_attribute = 1;
+      EvaluateOPCondition evaluate_attribute = 2;
+      ContextInGroupAttributesCondition context_in_group_attributes = 3;
+      ContextInLiteralSetCondition context_in_literal_set = 4;
+      ContextInGroupAttributesInLiteralSetCondition attribute_in_literal_set = 5;
+      NegationCondition negation = 6;
+      OrCondition or = 7;
+      AndCondition and = 8;
+    }
+}
+// check if the request(group)
+message HasAttributesCondition {
+  repeated string attribute_key = 1;
+}
+message EvaluateOPCondition {
+  string attribute_key = 1;
+  Operation op = 2;
+  string value = 3;
+}
+message ContextInGroupAttributesCondition {
+  string context_key = 1;
+  repeated string group_attribute_key = 2;
+}
+message ContextInLiteralSetCondition {
+  string context_key = 1;
+  repeated string literal = 2;
+}
+// if certain attribute is within the string literal
+message ContextInGroupAttributesInLiteralSetCondition {
+  string group_attribute_key = 1;
+  repeated string literal = 2;
+}
+message NegationCondition {
+  PolicyCondition condition = 1;
+}
+message OrCondition {
+  repeated PolicyCondition condition = 1;
+}
+message AndCondition {
+  repeated PolicyCondition condition = 1;
+}
+
+enum Verdict {
+  UNKNOWN = 0;
+  DENIED = 1;
+  PERMITTED = 2;
+}
+
+message ContextProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message AuthorizeRequest {
+  oneof principal {
+    string principal_id = 1; // Caller will be trusted that this is authentic.
+    string access_token = 2; // AuthN will be performed.
+  }
+  repeated ContextProperty context_property = 3;
+  bool verbose = 4;
+  bool consistent = 5;
+}
+message AuthorizeResponse {
+  string principal_id = 1;
+  Verdict verdict = 2;
+  bool consistent = 4;
+}
+
+message AuthContext {
+  // the set of properties used for authorization
+  repeated ContextProperty context_property = 1;
+  // the principal id that will be authorized
+  string principal_id = 2;
+}
+
+service AuthNZ {
+    rpc authorize(AuthorizeRequest) returns (AuthorizeResponse); 
+}
