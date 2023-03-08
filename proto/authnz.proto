@@ -28,6 +28,11 @@ enum Operation {
     CONTAINS = 5;
 }
 
+message Policy {
+  string id = 1;
+  PolicyCondition condition = 2;
+}
+
 message PolicyCondition {
     oneof condition {
       HasAttributesCondition has_attribute = 1;
@@ -84,10 +89,8 @@ message ContextProperty {
 }
 
 message AuthorizeRequest {
-  oneof principal {
-    string principal_id = 1; // Caller will be trusted that this is authentic.
-    string access_token = 2; // AuthN will be performed.
-  }
+  string principal_id = 1; // Caller will be trusted that this is authentic.
+  string policy_id = 2;
   repeated ContextProperty context_property = 3;
   bool verbose = 4;
   bool consistent = 5;
