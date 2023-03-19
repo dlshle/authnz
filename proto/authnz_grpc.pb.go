@@ -23,6 +23,19 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthNZClient interface {
 	Authorize(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
+	AddSubject(ctx context.Context, in *AddSubjectRequest, opts ...grpc.CallOption) (*AddSubjectResponse, error)
+	GetSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*Subject, error)
+	DeleteSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	GetGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	UpdateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	DeleteGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error)
+	GetPolicy(ctx context.Context, in *PolicyByIDRequest, opts ...grpc.CallOption) (*Policy, error)
+	UpdatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error)
+	DeletePolicy(ctx context.Context, in *PolicyByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	CreateContract(ctx context.Context, in *ContractRequest, opts ...grpc.CallOption) (*ContractResponse, error)
+	DeleteContract(ctx context.Context, in *DeleteContractRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type authNZClient struct {
@@ -42,11 +55,141 @@ func (c *authNZClient) Authorize(ctx context.Context, in *AuthorizeRequest, opts
 	return out, nil
 }
 
+func (c *authNZClient) AddSubject(ctx context.Context, in *AddSubjectRequest, opts ...grpc.CallOption) (*AddSubjectResponse, error) {
+	out := new(AddSubjectResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/addSubject", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) GetSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*Subject, error) {
+	out := new(Subject)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getSubject", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) DeleteSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/deleteSubject", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) CreateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/createGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) GetGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) UpdateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/updateGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) DeleteGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/deleteGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) CreatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error) {
+	out := new(Policy)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/createPolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) GetPolicy(ctx context.Context, in *PolicyByIDRequest, opts ...grpc.CallOption) (*Policy, error) {
+	out := new(Policy)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getPolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) UpdatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error) {
+	out := new(Policy)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/updatePolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) DeletePolicy(ctx context.Context, in *PolicyByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/deletePolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) CreateContract(ctx context.Context, in *ContractRequest, opts ...grpc.CallOption) (*ContractResponse, error) {
+	out := new(ContractResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/createContract", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) DeleteContract(ctx context.Context, in *DeleteContractRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/deleteContract", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthNZServer is the server API for AuthNZ service.
 // All implementations must embed UnimplementedAuthNZServer
 // for forward compatibility
 type AuthNZServer interface {
 	Authorize(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
+	AddSubject(context.Context, *AddSubjectRequest) (*AddSubjectResponse, error)
+	GetSubject(context.Context, *SubjectByIDRequest) (*Subject, error)
+	DeleteSubject(context.Context, *SubjectByIDRequest) (*EmptyResponse, error)
+	CreateGroup(context.Context, *GroupRequest) (*GroupResponse, error)
+	GetGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error)
+	UpdateGroup(context.Context, *GroupRequest) (*GroupResponse, error)
+	DeleteGroup(context.Context, *GroupByIDRequest) (*EmptyResponse, error)
+	CreatePolicy(context.Context, *PolicyRequest) (*Policy, error)
+	GetPolicy(context.Context, *PolicyByIDRequest) (*Policy, error)
+	UpdatePolicy(context.Context, *PolicyRequest) (*Policy, error)
+	DeletePolicy(context.Context, *PolicyByIDRequest) (*EmptyResponse, error)
+	CreateContract(context.Context, *ContractRequest) (*ContractResponse, error)
+	DeleteContract(context.Context, *DeleteContractRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedAuthNZServer()
 }
 
@@ -56,6 +199,45 @@ type UnimplementedAuthNZServer struct {
 
 func (UnimplementedAuthNZServer) Authorize(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
+}
+func (UnimplementedAuthNZServer) AddSubject(context.Context, *AddSubjectRequest) (*AddSubjectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddSubject not implemented")
+}
+func (UnimplementedAuthNZServer) GetSubject(context.Context, *SubjectByIDRequest) (*Subject, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubject not implemented")
+}
+func (UnimplementedAuthNZServer) DeleteSubject(context.Context, *SubjectByIDRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSubject not implemented")
+}
+func (UnimplementedAuthNZServer) CreateGroup(context.Context, *GroupRequest) (*GroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
+}
+func (UnimplementedAuthNZServer) GetGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
+}
+func (UnimplementedAuthNZServer) UpdateGroup(context.Context, *GroupRequest) (*GroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateGroup not implemented")
+}
+func (UnimplementedAuthNZServer) DeleteGroup(context.Context, *GroupByIDRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
+}
+func (UnimplementedAuthNZServer) CreatePolicy(context.Context, *PolicyRequest) (*Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePolicy not implemented")
+}
+func (UnimplementedAuthNZServer) GetPolicy(context.Context, *PolicyByIDRequest) (*Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPolicy not implemented")
+}
+func (UnimplementedAuthNZServer) UpdatePolicy(context.Context, *PolicyRequest) (*Policy, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePolicy not implemented")
+}
+func (UnimplementedAuthNZServer) DeletePolicy(context.Context, *PolicyByIDRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePolicy not implemented")
+}
+func (UnimplementedAuthNZServer) CreateContract(context.Context, *ContractRequest) (*ContractResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateContract not implemented")
+}
+func (UnimplementedAuthNZServer) DeleteContract(context.Context, *DeleteContractRequest) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteContract not implemented")
 }
 func (UnimplementedAuthNZServer) mustEmbedUnimplementedAuthNZServer() {}
 
@@ -88,6 +270,240 @@ func _AuthNZ_Authorize_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthNZ_AddSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSubjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).AddSubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/addSubject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).AddSubject(ctx, req.(*AddSubjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_GetSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubjectByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).GetSubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/getSubject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).GetSubject(ctx, req.(*SubjectByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_DeleteSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubjectByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).DeleteSubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/deleteSubject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).DeleteSubject(ctx, req.(*SubjectByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).CreateGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/createGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).CreateGroup(ctx, req.(*GroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).GetGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/getGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).GetGroup(ctx, req.(*GroupByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_UpdateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).UpdateGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/updateGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).UpdateGroup(ctx, req.(*GroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).DeleteGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/deleteGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).DeleteGroup(ctx, req.(*GroupByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_CreatePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).CreatePolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/createPolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).CreatePolicy(ctx, req.(*PolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_GetPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).GetPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/getPolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).GetPolicy(ctx, req.(*PolicyByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_UpdatePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).UpdatePolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/updatePolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).UpdatePolicy(ctx, req.(*PolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_DeletePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).DeletePolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/deletePolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).DeletePolicy(ctx, req.(*PolicyByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_CreateContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ContractRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).CreateContract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/createContract",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).CreateContract(ctx, req.(*ContractRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_DeleteContract_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteContractRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).DeleteContract(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/deleteContract",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).DeleteContract(ctx, req.(*DeleteContractRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthNZ_ServiceDesc is the grpc.ServiceDesc for AuthNZ service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +514,58 @@ var AuthNZ_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "authorize",
 			Handler:    _AuthNZ_Authorize_Handler,
+		},
+		{
+			MethodName: "addSubject",
+			Handler:    _AuthNZ_AddSubject_Handler,
+		},
+		{
+			MethodName: "getSubject",
+			Handler:    _AuthNZ_GetSubject_Handler,
+		},
+		{
+			MethodName: "deleteSubject",
+			Handler:    _AuthNZ_DeleteSubject_Handler,
+		},
+		{
+			MethodName: "createGroup",
+			Handler:    _AuthNZ_CreateGroup_Handler,
+		},
+		{
+			MethodName: "getGroup",
+			Handler:    _AuthNZ_GetGroup_Handler,
+		},
+		{
+			MethodName: "updateGroup",
+			Handler:    _AuthNZ_UpdateGroup_Handler,
+		},
+		{
+			MethodName: "deleteGroup",
+			Handler:    _AuthNZ_DeleteGroup_Handler,
+		},
+		{
+			MethodName: "createPolicy",
+			Handler:    _AuthNZ_CreatePolicy_Handler,
+		},
+		{
+			MethodName: "getPolicy",
+			Handler:    _AuthNZ_GetPolicy_Handler,
+		},
+		{
+			MethodName: "updatePolicy",
+			Handler:    _AuthNZ_UpdatePolicy_Handler,
+		},
+		{
+			MethodName: "deletePolicy",
+			Handler:    _AuthNZ_DeletePolicy_Handler,
+		},
+		{
+			MethodName: "createContract",
+			Handler:    _AuthNZ_CreateContract_Handler,
+		},
+		{
+			MethodName: "deleteContract",
+			Handler:    _AuthNZ_DeleteContract_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

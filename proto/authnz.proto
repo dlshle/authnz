@@ -4,7 +4,9 @@ package com.github.dlshle.authnz;
 
 option go_package = "github.com/dlshle/authnz/proto";
 
-message Principle {
+// each subject represents a user
+// each user holds multiple groups 
+message Subject {
     string id = 1;
     string user_id = 2;
 }
@@ -17,6 +19,12 @@ message Group {
 message Attribute {
     string key = 1;
     string value = 2;
+}
+
+message Contract {
+  string id = 1;
+  string subject_id = 2;
+  string group_id = 3;
 }
 
 enum Operation {
@@ -89,25 +97,83 @@ message ContextProperty {
 }
 
 message AuthorizeRequest {
-  string principal_id = 1; // Caller will be trusted that this is authentic.
+  string subject_id = 1; // Caller will be trusted that this is authentic.
   string policy_id = 2;
   repeated ContextProperty context_property = 3;
   bool verbose = 4;
-  bool consistent = 5;
 }
 message AuthorizeResponse {
-  string principal_id = 1;
+  string subject_id = 1;
   Verdict verdict = 2;
-  bool consistent = 4;
 }
 
 message AuthContext {
   // the set of properties used for authorization
   repeated ContextProperty context_property = 1;
-  // the principal id that will be authorized
-  string principal_id = 2;
+  // the subject id that will be authorized
+  string subject_id = 2;
 }
+
+message AddSubjectRequest {
+  string user_id = 1;
+}
+
+message AddSubjectResponse {
+  Subject subject = 1;
+}
+
+message SubjectByIDRequest {
+  string subject_id = 1;
+}
+
+
+message GroupRequest {
+  Group group = 1;
+}
+
+message GroupResponse {
+  Group group = 1;
+}
+
+message GroupByIDRequest {
+  string group_id = 1;
+}
+
+message PolicyRequest {
+  Policy policy = 1;
+}
+
+message PolicyByIDRequest {
+  string policy_id = 1;
+}
+
+message ContractRequest {
+  Contract contract = 1;
+}
+
+message ContractResponse {
+  Contract contract = 1;
+}
+
+message DeleteContractRequest {
+  string contract_id = 1;
+}
+
+message EmptyResponse {}
 
 service AuthNZ {
     rpc authorize(AuthorizeRequest) returns (AuthorizeResponse); 
+    rpc addSubject(AddSubjectRequest) returns (AddSubjectResponse);
+    rpc getSubject(SubjectByIDRequest) returns (Subject);
+    rpc deleteSubject(SubjectByIDRequest) returns (EmptyResponse);
+    rpc createGroup(GroupRequest) returns (GroupResponse);
+    rpc getGroup(GroupByIDRequest) returns (GroupResponse);
+    rpc updateGroup(GroupRequest) returns (GroupResponse);
+    rpc deleteGroup(GroupByIDRequest) returns (EmptyResponse);
+    rpc createPolicy(PolicyRequest) returns (Policy);
+    rpc getPolicy(PolicyByIDRequest) returns (Policy);
+    rpc updatePolicy(PolicyRequest) returns (Policy);
+    rpc deletePolicy(PolicyByIDRequest) returns (EmptyResponse);
+    rpc createContract(ContractRequest) returns (ContractResponse);
+    rpc deleteContract(DeleteContractRequest) returns (EmptyResponse);
 }
