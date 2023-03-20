@@ -30,6 +30,16 @@ func (h *Handler) UpdateGroup(ctx context.Context, req *pb.GroupRequest) (*pb.Gr
 	return &pb.GroupResponse{Group: updatedGroup}, nil
 }
 
+func (h *Handler) DuplicateGroup(ctx context.Context, groupID string) (*pb.GroupResponse, error) {
+	existingGroup, err := h.store.Get(groupID)
+	if err != nil {
+		return nil, err
+	}
+	existingGroup.Id = ""
+	newGroup, err := h.store.Put(existingGroup)
+	return &pb.GroupResponse{Group: newGroup}, err
+}
+
 func (h *Handler) DeleteGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.EmptyResponse, error) {
 	err := h.store.Delete(req.GroupId)
 	return &pb.EmptyResponse{}, err

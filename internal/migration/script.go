@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS policies (
 
 CREATE TABLE IF NOT EXISTS contracts (
 	id uuid,
-	subject_id varchar(255),
-	group_id varchar(255),
+	subject_id uuid,
+	group_id uuid,
 	PRIMARY KEY ( id )
 );
 `

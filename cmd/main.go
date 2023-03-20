@@ -52,7 +52,7 @@ func initGrpcServer(config config.Config) (pb.AuthNZServer, error) {
 
 	groupHandler := group.NewHandler(groupSQLStore)
 	policyHandler := policy.NewHandler(policySQLStore)
-	subjectHandler := subject.NewHandler(subjectSQLStore)
+	subjectHandler := subject.NewHandler(subjectSQLStore, contractSQLStore, groupSQLStore)
 	contractHandler := contract.NewHandler(contractSQLStore)
 
 	grpcServer := server.NewGRPCServer(subjectHandler, groupHandler, policyHandler, contractHandler)

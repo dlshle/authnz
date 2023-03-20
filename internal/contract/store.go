@@ -13,8 +13,11 @@ type Store interface {
 	AddNewContract(subjectID, groupID string) (*pb.Contract, error)
 	DeleteContractByContractID(contractID string) error
 	DeleteContract(subjectID, groupID string) error
+	TxDeleteContract(tx store.SQLTransactional, contractID string) error
 	ListAllContractsBySubject(subjectID string) ([]Contract, error)
 	ListGroupsBySubjectID(subjectID string) ([]*pb.Group, error)
+	TxListAllContractsBySubject(tx store.SQLTransactional, subjectID string) ([]Contract, error)
+	TxListContractsByGroupID(tx store.SQLTransactional, groupID string) ([]Contract, error)
 }
 
 type contractStore struct {
@@ -56,7 +59,11 @@ func (s *contractStore) DeleteContract(subjectID, groupID string) error {
 }
 
 func (s *contractStore) DeleteContractByContractID(contractID string) error {
-	res, err := s.db.Exec("DELETE FROM contracts WHERE id = $1", contractID)
+	return s.TxDeleteContract(s.db, contractID)
+}
+
+func (s *contractStore) TxDeleteContract(tx store.SQLTransactional, contractID string) error {
+	res, err := tx.Exec("DELETE FROM contracts WHERE id = $1", contractID)
 	if err != nil {
 		return err
 	}
@@ -65,13 +72,13 @@ func (s *contractStore) DeleteContractByContractID(contractID string) error {
 
 func (s *contractStore) ListGroupsBySubjectID(subjectID string) ([]*pb.Group, error) {
 	pbEntities := []store.PBEntity{}
-	err := s.db.Select(pbEntities, "SELECT * FROM groups WHERE id IN (SELECT group_id FROM contracts WHERE subject_id = $1)", subjectID)
+	err := s.db.Select(&pbEntities, "SELECT * FROM groups WHERE id IN (SELECT group_id FROM contracts WHERE subject_id = $1)", subjectID)
 	if err != nil {
 		return nil, err
 	}
 	groups := make([]*pb.Group, len(pbEntities), len(pbEntities))
 	for i, pbEntity := range pbEntities {
-		var pbGroup *pb.Group
+		pbGroup := &pb.Group{}
 		err = proto.Unmarshal(pbEntity.Payload, pbGroup)
 		if err != nil {
 			return nil, err
@@ -82,7 +89,17 @@ func (s *contractStore) ListGroupsBySubjectID(subjectID string) ([]*pb.Group, er
 }
 
 func (s *contractStore) ListAllContractsBySubject(subjectID string) ([]Contract, error) {
+	return s.TxListAllContractsBySubject(s.db, subjectID)
+}
+
+func (s *contractStore) TxListAllContractsBySubject(tx store.SQLTransactional, subjectID string) ([]Contract, error) {
 	contracts := []Contract{}
-	err := s.db.Select(contracts, "SELECT * FROM contracts WHERE subject_id = $1", subjectID)
+	err := tx.Select(&contracts, "SELECT * FROM contracts WHERE subject_id = $1", subjectID)
+	return contracts, err
+}
+
+func (s *contractStore) TxListContractsByGroupID(tx store.SQLTransactional, groupID string) ([]Contract, error) {
+	contracts := []Contract{}
+	err := tx.Select(&contracts, "SELECT * FROM contracts WHERE group_id = $1", groupID)
 	return contracts, err
 }

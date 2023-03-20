@@ -103,8 +103,7 @@ message AuthorizeRequest {
   bool verbose = 4;
 }
 message AuthorizeResponse {
-  string subject_id = 1;
-  Verdict verdict = 2;
+  Verdict verdict = 1;
 }
 
 message AuthContext {
@@ -170,6 +169,7 @@ service AuthNZ {
     rpc getGroup(GroupByIDRequest) returns (GroupResponse);
     rpc updateGroup(GroupRequest) returns (GroupResponse);
     rpc deleteGroup(GroupByIDRequest) returns (EmptyResponse);
+    rpc duplicateGroup(GroupByIDRequest) returns (GroupResponse);
     rpc createPolicy(PolicyRequest) returns (Policy);
     rpc getPolicy(PolicyByIDRequest) returns (Policy);
     rpc updatePolicy(PolicyRequest) returns (Policy);

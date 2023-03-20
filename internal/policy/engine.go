@@ -1,9 +1,11 @@
 package policy
 
 import (
+	"context"
 	"strings"
 
 	"github.com/dlshle/gommon/errors"
+	"github.com/dlshle/gommon/logging"
 
 	"github.com/dlshle/authnz/internal/group"
 	pb "github.com/dlshle/authnz/proto"
@@ -17,10 +19,15 @@ type conditionProcessor = func(cond *pb.PolicyCondition, group group.Group, ctx 
 
 type engine struct {
 	conditionProcessors []conditionProcessor
+	logger              logging.Logger
 }
 
 func NewEngine() Engine {
-	return &engine{}
+	e := &engine{
+		logger: logging.GlobalLogger.WithPrefix("[PolicyEngine]"),
+	}
+	e.init()
+	return e
 }
 
 func (e *engine) init() {
@@ -130,11 +137,13 @@ func (e *engine) AndProcessor(cond *pb.PolicyCondition, group group.Group, ctx *
 	if andCond == nil {
 		return pb.Verdict_UNKNOWN, nil
 	}
+	e.logger.Infof(context.Background(), "process and condition %s", cond.String())
 	for _, innerCond := range andCond.GetCondition() {
 		if verdict, err = e.evaluateCondition(innerCond, group, ctx); err != nil || verdict == pb.Verdict_DENIED {
 			return
 		}
 	}
+	e.logger.Infof(context.Background(), "action permitted for %s", cond.String())
 	return pb.Verdict_PERMITTED, nil
 }
 

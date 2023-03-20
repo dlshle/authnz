@@ -30,6 +30,7 @@ type AuthNZClient interface {
 	GetGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	UpdateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	DeleteGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	DuplicateGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	CreatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error)
 	GetPolicy(ctx context.Context, in *PolicyByIDRequest, opts ...grpc.CallOption) (*Policy, error)
 	UpdatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error)
@@ -118,6 +119,15 @@ func (c *authNZClient) DeleteGroup(ctx context.Context, in *GroupByIDRequest, op
 	return out, nil
 }
 
+func (c *authNZClient) DuplicateGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/duplicateGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authNZClient) CreatePolicy(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*Policy, error) {
 	out := new(Policy)
 	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/createPolicy", in, out, opts...)
@@ -184,6 +194,7 @@ type AuthNZServer interface {
 	GetGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error)
 	UpdateGroup(context.Context, *GroupRequest) (*GroupResponse, error)
 	DeleteGroup(context.Context, *GroupByIDRequest) (*EmptyResponse, error)
+	DuplicateGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error)
 	CreatePolicy(context.Context, *PolicyRequest) (*Policy, error)
 	GetPolicy(context.Context, *PolicyByIDRequest) (*Policy, error)
 	UpdatePolicy(context.Context, *PolicyRequest) (*Policy, error)
@@ -220,6 +231,9 @@ func (UnimplementedAuthNZServer) UpdateGroup(context.Context, *GroupRequest) (*G
 }
 func (UnimplementedAuthNZServer) DeleteGroup(context.Context, *GroupByIDRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
+}
+func (UnimplementedAuthNZServer) DuplicateGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DuplicateGroup not implemented")
 }
 func (UnimplementedAuthNZServer) CreatePolicy(context.Context, *PolicyRequest) (*Policy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePolicy not implemented")
@@ -396,6 +410,24 @@ func _AuthNZ_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthNZ_DuplicateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).DuplicateGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/duplicateGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).DuplicateGroup(ctx, req.(*GroupByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AuthNZ_CreatePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PolicyRequest)
 	if err := dec(in); err != nil {
@@ -542,6 +574,10 @@ var AuthNZ_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "deleteGroup",
 			Handler:    _AuthNZ_DeleteGroup_Handler,
+		},
+		{
+			MethodName: "duplicateGroup",
+			Handler:    _AuthNZ_DuplicateGroup_Handler,
 		},
 		{
 			MethodName: "createPolicy",

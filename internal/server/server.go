@@ -10,6 +10,7 @@ import (
 	"github.com/dlshle/authnz/internal/policy"
 	"github.com/dlshle/authnz/internal/subject"
 	pb "github.com/dlshle/authnz/proto"
+	"github.com/dlshle/gommon/errors"
 	"github.com/dlshle/gommon/logging"
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc"
@@ -45,11 +46,11 @@ func (s *server) Authorize(ctx context.Context, req *pb.AuthorizeRequest) (*pb.A
 	engine := policy.NewEngine()
 	groups, err := s.contractHandler.GetGroupsBySubjectID(req.SubjectId)
 	if err != nil {
-		return nil, err
+		return nil, errors.Error("failed to get groups by subject due to " + err.Error())
 	}
 	policy, err := s.policyHandler.GetPolicyByID(req.PolicyId)
 	if err != nil {
-		return nil, err
+		return nil, errors.Error("failed to get policy due to " + err.Error())
 	}
 	verdict, err := engine.Check(policy, group.MergeGroups(groups), nil)
 	return &pb.AuthorizeResponse{Verdict: verdict}, err
@@ -73,7 +74,7 @@ func (s *server) GetSubject(ctx context.Context, req *pb.SubjectByIDRequest) (*p
 }
 
 func (s *server) DeleteSubject(ctx context.Context, req *pb.SubjectByIDRequest) (*pb.EmptyResponse, error) {
-	return s.subjectHandler.DeleteSubject(ctx, req)
+	return s.subjectHandler.DeleteSubject(ctx, req.SubjectId)
 }
 
 func (s *server) CreateGroup(ctx context.Context, req *pb.GroupRequest) (*pb.GroupResponse, error) {
@@ -87,6 +88,10 @@ func (s *server) GetGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.Gr
 
 func (s *server) UpdateGroup(ctx context.Context, req *pb.GroupRequest) (*pb.GroupResponse, error) {
 	return s.groupHandler.UpdateGroup(ctx, req)
+}
+
+func (s *server) DuplicateGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.GroupResponse, error) {
+	return s.groupHandler.DuplicateGroup(ctx, req.GroupId)
 }
 
 func (s *server) DeleteGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.EmptyResponse, error) {

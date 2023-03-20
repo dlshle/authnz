@@ -12,7 +12,9 @@ import (
 type Store interface {
 	Get(id string) (*pb.Subject, error)
 	Delete(id string) error
+	TxDelete(tx store.SQLTransactional, id string) error
 	Put(subject *pb.Subject) (*pb.Subject, error)
+	WithTX(cb func(store.SQLTransactional) error) error
 }
 
 type SQLSubjectStore struct {
@@ -62,4 +64,12 @@ func (s *SQLSubjectStore) Put(subject *pb.Subject) (ret *pb.Subject, err error) 
 
 func (s *SQLSubjectStore) Delete(id string) error {
 	return s.pbEntityStore.Delete(id)
+}
+
+func (s *SQLSubjectStore) TxDelete(tx store.SQLTransactional, id string) error {
+	return s.pbEntityStore.TxDelete(tx, id)
+}
+
+func (s *SQLSubjectStore) WithTX(cb func(store.SQLTransactional) error) error {
+	return s.pbEntityStore.WithTx(cb)
 }

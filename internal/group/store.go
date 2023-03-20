@@ -11,7 +11,9 @@ import (
 
 type Store interface {
 	Get(id string) (*pb.Group, error)
+	TxGet(tx store.SQLTransactional, id string) (*pb.Group, error)
 	Delete(id string) error
+	TxDelete(tx store.SQLTransactional, groupID string) error
 	Put(group *pb.Group) (*pb.Group, error)
 }
 
@@ -25,6 +27,16 @@ func NewSQLStore(db *sqlx.DB) Store {
 
 func (s *SQLGroupStore) Get(id string) (*pb.Group, error) {
 	pbEntity, err := s.PbEntityStore.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	group := &pb.Group{}
+	err = proto.Unmarshal(pbEntity.Payload, group)
+	return group, err
+}
+
+func (s *SQLGroupStore) TxGet(tx store.SQLTransactional, id string) (*pb.Group, error) {
+	pbEntity, err := s.PbEntityStore.TxGet(tx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -62,4 +74,8 @@ func (s *SQLGroupStore) Put(group *pb.Group) (ret *pb.Group, err error) {
 
 func (s *SQLGroupStore) Delete(id string) error {
 	return s.PbEntityStore.Delete(id)
+}
+
+func (s *SQLGroupStore) TxDelete(tx store.SQLTransactional, groupID string) error {
+	return s.PbEntityStore.TxDelete(tx, groupID)
 }

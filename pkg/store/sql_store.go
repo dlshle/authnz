@@ -28,8 +28,12 @@ func NewSQLPBEntityStore(db *sqlx.DB, tableName string) PBEntityStore {
 }
 
 func (s *SQLPBEntityStore) Get(id string) (*PBEntity, error) {
+	return s.TxGet(s.Db, id)
+}
+
+func (s *SQLPBEntityStore) TxGet(tx SQLTransactional, id string) (*PBEntity, error) {
 	entities := []PBEntity{}
-	err := s.Db.Select(&entities, "SELECT * FROM "+s.tableName+" WHERE id = $1", id)
+	err := tx.Select(&entities, "SELECT * FROM "+s.tableName+" WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +44,11 @@ func (s *SQLPBEntityStore) Get(id string) (*PBEntity, error) {
 }
 
 func (s *SQLPBEntityStore) Delete(id string) error {
-	res, err := s.Db.Exec("DELETE FROM "+s.tableName+" WHERE id = $1", id)
+	return s.TxDelete(s.Db, id)
+}
+
+func (s *SQLPBEntityStore) TxDelete(tx SQLTransactional, id string) error {
+	res, err := tx.Exec("DELETE FROM "+s.tableName+" WHERE id = $1", id)
 	if err != nil {
 		return err
 	}
@@ -48,6 +56,10 @@ func (s *SQLPBEntityStore) Delete(id string) error {
 }
 
 func (s *SQLPBEntityStore) Put(entity *PBEntity) (*PBEntity, error) {
+	return s.TxPut(s.Db, entity)
+}
+
+func (s *SQLPBEntityStore) TxPut(tx SQLTransactional, entity *PBEntity) (*PBEntity, error) {
 	var (
 		result sql.Result
 		err    error
@@ -60,9 +72,9 @@ func (s *SQLPBEntityStore) Put(entity *PBEntity) (*PBEntity, error) {
 			return nil, err
 		}
 		entity.ID = newID.String()
-		result, err = s.execUpsert(entity)
+		result, err = s.execUpsert(tx, entity)
 	} else {
-		result, err = s.execUpsert(entity)
+		result, err = s.execUpsert(tx, entity)
 	}
 	if err != nil {
 		logging.GlobalLogger.Infof(context.Background(), "error: %v", err)
@@ -70,14 +82,27 @@ func (s *SQLPBEntityStore) Put(entity *PBEntity) (*PBEntity, error) {
 	}
 	err = CheckErrorForRowsAffected(result, "no row is affected")
 	return entity, err
+
 }
 
-func (s *SQLPBEntityStore) execUpsert(entity *PBEntity) (sql.Result, error) {
-	return s.Db.Exec("INSERT INTO "+s.tableName+" (id, payload) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET id = $1, payload = $2", entity.ID, entity.Payload)
+func (s *SQLPBEntityStore) WithTx(cb func(SQLTransactional) error) error {
+	tx, err := s.Db.Beginx()
+	if err != nil {
+		return err
+	}
+	err = cb(tx)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
-func (s *SQLPBEntityStore) execUpdate(entity *PBEntity) (sql.Result, error) {
-	return s.Db.Exec("UPDATE "+s.tableName+" SET payload = $2 WHERE id = $1", entity.ID, entity.Payload)
+func (s *SQLPBEntityStore) execUpsert(tx SQLTransactional, entity *PBEntity) (sql.Result, error) {
+	return tx.Exec("INSERT INTO "+s.tableName+" (id, payload) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET id = $1, payload = $2", entity.ID, entity.Payload)
+}
+
+func (s *SQLPBEntityStore) execUpdate(tx SQLTransactional, entity *PBEntity) (sql.Result, error) {
+	return tx.Exec("UPDATE "+s.tableName+" SET payload = $2 WHERE id = $1", entity.ID, entity.Payload)
 }
 
 func CheckErrorForRowsAffected(result sql.Result, onNoRowAffectedMsg string) error {
