@@ -121,10 +121,29 @@ message AddSubjectResponse {
   Subject subject = 1;
 }
 
-message SubjectByIDRequest {
+message SubjectIDRequest {
   string subject_id = 1;
 }
 
+message SubjectsByUserIDRequest {
+  string user_id = 1;
+}
+
+message SubjectsByUserIDResponse {
+  repeated Subject subjects = 1;
+}
+
+// this creates groups when the subject is created
+message AddSubjectWithAttributesRequest {
+  string user_id = 1;
+  repeated Attribute attributes = 2;
+}
+
+message AddSubjectWithAttributesResponse {
+  Subject subject = 1;
+  string contract_id = 2;
+  Group group = 3;
+}
 
 message GroupRequest {
   Group group = 1;
@@ -132,6 +151,10 @@ message GroupRequest {
 
 message GroupResponse {
   Group group = 1;
+}
+
+message GroupsResponse {
+  repeated Group groups = 1;
 }
 
 message GroupByIDRequest {
@@ -144,6 +167,16 @@ message PolicyRequest {
 
 message PolicyByIDRequest {
   string policy_id = 1;
+}
+
+message CreateGroupForSubjectsRequest {
+  repeated string subject_ids = 1;
+  repeated Attribute attributes = 2;
+}
+
+message CreateGroupForSubjectsResponse {
+  repeated Contract contracts = 1;
+  Group group = 2;
 }
 
 message ContractRequest {
@@ -163,10 +196,14 @@ message EmptyResponse {}
 service AuthNZ {
     rpc authorize(AuthorizeRequest) returns (AuthorizeResponse); 
     rpc addSubject(AddSubjectRequest) returns (AddSubjectResponse);
-    rpc getSubject(SubjectByIDRequest) returns (Subject);
-    rpc deleteSubject(SubjectByIDRequest) returns (EmptyResponse);
+    rpc getSubject(SubjectIDRequest) returns (Subject);
+    rpc addSubjectWithAttributes(AddSubjectWithAttributesRequest) returns (AddSubjectWithAttributesResponse);
+    rpc createGroupsForSubjects(CreateGroupForSubjectsRequest) returns (CreateGroupForSubjectsResponse);
+    rpc findSubjectsByUserID(SubjectsByUserIDRequest) returns (SubjectsByUserIDResponse);
+    rpc deleteSubject(SubjectIDRequest) returns (EmptyResponse);
     rpc createGroup(GroupRequest) returns (GroupResponse);
     rpc getGroup(GroupByIDRequest) returns (GroupResponse);
+    rpc getGroupsBySubjectID(SubjectIDRequest) returns (GroupsResponse);
     rpc updateGroup(GroupRequest) returns (GroupResponse);
     rpc deleteGroup(GroupByIDRequest) returns (EmptyResponse);
     rpc duplicateGroup(GroupByIDRequest) returns (GroupResponse);

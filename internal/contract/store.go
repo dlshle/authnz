@@ -11,9 +11,11 @@ import (
 
 type Store interface {
 	AddNewContract(subjectID, groupID string) (*pb.Contract, error)
+	TxAddNewContract(tx store.SQLTransactional, subjectID, groupID string) (*pb.Contract, error)
 	DeleteContractByContractID(contractID string) error
 	DeleteContract(subjectID, groupID string) error
 	TxDeleteContract(tx store.SQLTransactional, contractID string) error
+	TxDeleteContractsByGroupID(tx store.SQLTransactional, groupID string) error
 	ListAllContractsBySubject(subjectID string) ([]Contract, error)
 	ListGroupsBySubjectID(subjectID string) ([]*pb.Group, error)
 	TxListAllContractsBySubject(tx store.SQLTransactional, subjectID string) ([]Contract, error)
@@ -29,6 +31,10 @@ func NewContractStore(db *sqlx.DB) Store {
 }
 
 func (s *contractStore) AddNewContract(subjectID, groupID string) (*pb.Contract, error) {
+	return s.TxAddNewContract(s.db, subjectID, groupID)
+}
+
+func (s *contractStore) TxAddNewContract(tx store.SQLTransactional, subjectID, groupID string) (*pb.Contract, error) {
 	contracts, err := s.ListAllContractsBySubject(subjectID)
 	if err != nil {
 		return nil, err
@@ -42,7 +48,7 @@ func (s *contractStore) AddNewContract(subjectID, groupID string) (*pb.Contract,
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.db.Exec("INSERT INTO contracts (id, subject_id, group_id) VALUES ($1, $2, $3)", contractID.String(), subjectID, groupID)
+	res, err := tx.Exec("INSERT INTO contracts (id, subject_id, group_id) VALUES ($1, $2, $3)", contractID.String(), subjectID, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +66,14 @@ func (s *contractStore) DeleteContract(subjectID, groupID string) error {
 
 func (s *contractStore) DeleteContractByContractID(contractID string) error {
 	return s.TxDeleteContract(s.db, contractID)
+}
+
+func (s *contractStore) TxDeleteContractsByGroupID(tx store.SQLTransactional, groupID string) error {
+	res, err := tx.Exec("DELETE FROM contracts WHERE group_id = $1", groupID)
+	if err != nil {
+		return err
+	}
+	return store.CheckErrorForRowsAffected(res, "not found: no group is found by group_id "+groupID)
 }
 
 func (s *contractStore) TxDeleteContract(tx store.SQLTransactional, contractID string) error {

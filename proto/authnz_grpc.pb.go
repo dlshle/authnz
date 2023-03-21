@@ -24,10 +24,14 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthNZClient interface {
 	Authorize(ctx context.Context, in *AuthorizeRequest, opts ...grpc.CallOption) (*AuthorizeResponse, error)
 	AddSubject(ctx context.Context, in *AddSubjectRequest, opts ...grpc.CallOption) (*AddSubjectResponse, error)
-	GetSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*Subject, error)
-	DeleteSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	GetSubject(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*Subject, error)
+	AddSubjectWithAttributes(ctx context.Context, in *AddSubjectWithAttributesRequest, opts ...grpc.CallOption) (*AddSubjectWithAttributesResponse, error)
+	CreateGroupsForSubjects(ctx context.Context, in *CreateGroupForSubjectsRequest, opts ...grpc.CallOption) (*CreateGroupForSubjectsResponse, error)
+	FindSubjectsByUserID(ctx context.Context, in *SubjectsByUserIDRequest, opts ...grpc.CallOption) (*SubjectsByUserIDResponse, error)
+	DeleteSubject(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	CreateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	GetGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	GetGroupsBySubjectID(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*GroupsResponse, error)
 	UpdateGroup(ctx context.Context, in *GroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	DeleteGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	DuplicateGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error)
@@ -65,7 +69,7 @@ func (c *authNZClient) AddSubject(ctx context.Context, in *AddSubjectRequest, op
 	return out, nil
 }
 
-func (c *authNZClient) GetSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*Subject, error) {
+func (c *authNZClient) GetSubject(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*Subject, error) {
 	out := new(Subject)
 	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getSubject", in, out, opts...)
 	if err != nil {
@@ -74,7 +78,34 @@ func (c *authNZClient) GetSubject(ctx context.Context, in *SubjectByIDRequest, o
 	return out, nil
 }
 
-func (c *authNZClient) DeleteSubject(ctx context.Context, in *SubjectByIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+func (c *authNZClient) AddSubjectWithAttributes(ctx context.Context, in *AddSubjectWithAttributesRequest, opts ...grpc.CallOption) (*AddSubjectWithAttributesResponse, error) {
+	out := new(AddSubjectWithAttributesResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/addSubjectWithAttributes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) CreateGroupsForSubjects(ctx context.Context, in *CreateGroupForSubjectsRequest, opts ...grpc.CallOption) (*CreateGroupForSubjectsResponse, error) {
+	out := new(CreateGroupForSubjectsResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/createGroupsForSubjects", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) FindSubjectsByUserID(ctx context.Context, in *SubjectsByUserIDRequest, opts ...grpc.CallOption) (*SubjectsByUserIDResponse, error) {
+	out := new(SubjectsByUserIDResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/findSubjectsByUserID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) DeleteSubject(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/deleteSubject", in, out, opts...)
 	if err != nil {
@@ -95,6 +126,15 @@ func (c *authNZClient) CreateGroup(ctx context.Context, in *GroupRequest, opts .
 func (c *authNZClient) GetGroup(ctx context.Context, in *GroupByIDRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
 	out := new(GroupResponse)
 	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authNZClient) GetGroupsBySubjectID(ctx context.Context, in *SubjectIDRequest, opts ...grpc.CallOption) (*GroupsResponse, error) {
+	out := new(GroupsResponse)
+	err := c.cc.Invoke(ctx, "/com.github.dlshle.authnz.AuthNZ/getGroupsBySubjectID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,10 +228,14 @@ func (c *authNZClient) DeleteContract(ctx context.Context, in *DeleteContractReq
 type AuthNZServer interface {
 	Authorize(context.Context, *AuthorizeRequest) (*AuthorizeResponse, error)
 	AddSubject(context.Context, *AddSubjectRequest) (*AddSubjectResponse, error)
-	GetSubject(context.Context, *SubjectByIDRequest) (*Subject, error)
-	DeleteSubject(context.Context, *SubjectByIDRequest) (*EmptyResponse, error)
+	GetSubject(context.Context, *SubjectIDRequest) (*Subject, error)
+	AddSubjectWithAttributes(context.Context, *AddSubjectWithAttributesRequest) (*AddSubjectWithAttributesResponse, error)
+	CreateGroupsForSubjects(context.Context, *CreateGroupForSubjectsRequest) (*CreateGroupForSubjectsResponse, error)
+	FindSubjectsByUserID(context.Context, *SubjectsByUserIDRequest) (*SubjectsByUserIDResponse, error)
+	DeleteSubject(context.Context, *SubjectIDRequest) (*EmptyResponse, error)
 	CreateGroup(context.Context, *GroupRequest) (*GroupResponse, error)
 	GetGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error)
+	GetGroupsBySubjectID(context.Context, *SubjectIDRequest) (*GroupsResponse, error)
 	UpdateGroup(context.Context, *GroupRequest) (*GroupResponse, error)
 	DeleteGroup(context.Context, *GroupByIDRequest) (*EmptyResponse, error)
 	DuplicateGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error)
@@ -214,10 +258,19 @@ func (UnimplementedAuthNZServer) Authorize(context.Context, *AuthorizeRequest) (
 func (UnimplementedAuthNZServer) AddSubject(context.Context, *AddSubjectRequest) (*AddSubjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddSubject not implemented")
 }
-func (UnimplementedAuthNZServer) GetSubject(context.Context, *SubjectByIDRequest) (*Subject, error) {
+func (UnimplementedAuthNZServer) GetSubject(context.Context, *SubjectIDRequest) (*Subject, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubject not implemented")
 }
-func (UnimplementedAuthNZServer) DeleteSubject(context.Context, *SubjectByIDRequest) (*EmptyResponse, error) {
+func (UnimplementedAuthNZServer) AddSubjectWithAttributes(context.Context, *AddSubjectWithAttributesRequest) (*AddSubjectWithAttributesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddSubjectWithAttributes not implemented")
+}
+func (UnimplementedAuthNZServer) CreateGroupsForSubjects(context.Context, *CreateGroupForSubjectsRequest) (*CreateGroupForSubjectsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroupsForSubjects not implemented")
+}
+func (UnimplementedAuthNZServer) FindSubjectsByUserID(context.Context, *SubjectsByUserIDRequest) (*SubjectsByUserIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindSubjectsByUserID not implemented")
+}
+func (UnimplementedAuthNZServer) DeleteSubject(context.Context, *SubjectIDRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSubject not implemented")
 }
 func (UnimplementedAuthNZServer) CreateGroup(context.Context, *GroupRequest) (*GroupResponse, error) {
@@ -225,6 +278,9 @@ func (UnimplementedAuthNZServer) CreateGroup(context.Context, *GroupRequest) (*G
 }
 func (UnimplementedAuthNZServer) GetGroup(context.Context, *GroupByIDRequest) (*GroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
+}
+func (UnimplementedAuthNZServer) GetGroupsBySubjectID(context.Context, *SubjectIDRequest) (*GroupsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroupsBySubjectID not implemented")
 }
 func (UnimplementedAuthNZServer) UpdateGroup(context.Context, *GroupRequest) (*GroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateGroup not implemented")
@@ -303,7 +359,7 @@ func _AuthNZ_AddSubject_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _AuthNZ_GetSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubjectByIDRequest)
+	in := new(SubjectIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -315,13 +371,67 @@ func _AuthNZ_GetSubject_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/com.github.dlshle.authnz.AuthNZ/getSubject",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthNZServer).GetSubject(ctx, req.(*SubjectByIDRequest))
+		return srv.(AuthNZServer).GetSubject(ctx, req.(*SubjectIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_AddSubjectWithAttributes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSubjectWithAttributesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).AddSubjectWithAttributes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/addSubjectWithAttributes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).AddSubjectWithAttributes(ctx, req.(*AddSubjectWithAttributesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_CreateGroupsForSubjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateGroupForSubjectsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).CreateGroupsForSubjects(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/createGroupsForSubjects",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).CreateGroupsForSubjects(ctx, req.(*CreateGroupForSubjectsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_FindSubjectsByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubjectsByUserIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).FindSubjectsByUserID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/findSubjectsByUserID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).FindSubjectsByUserID(ctx, req.(*SubjectsByUserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthNZ_DeleteSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubjectByIDRequest)
+	in := new(SubjectIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -333,7 +443,7 @@ func _AuthNZ_DeleteSubject_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/com.github.dlshle.authnz.AuthNZ/deleteSubject",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthNZServer).DeleteSubject(ctx, req.(*SubjectByIDRequest))
+		return srv.(AuthNZServer).DeleteSubject(ctx, req.(*SubjectIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -370,6 +480,24 @@ func _AuthNZ_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthNZServer).GetGroup(ctx, req.(*GroupByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthNZ_GetGroupsBySubjectID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubjectIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthNZServer).GetGroupsBySubjectID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/com.github.dlshle.authnz.AuthNZ/getGroupsBySubjectID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthNZServer).GetGroupsBySubjectID(ctx, req.(*SubjectIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -556,6 +684,18 @@ var AuthNZ_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthNZ_GetSubject_Handler,
 		},
 		{
+			MethodName: "addSubjectWithAttributes",
+			Handler:    _AuthNZ_AddSubjectWithAttributes_Handler,
+		},
+		{
+			MethodName: "createGroupsForSubjects",
+			Handler:    _AuthNZ_CreateGroupsForSubjects_Handler,
+		},
+		{
+			MethodName: "findSubjectsByUserID",
+			Handler:    _AuthNZ_FindSubjectsByUserID_Handler,
+		},
+		{
 			MethodName: "deleteSubject",
 			Handler:    _AuthNZ_DeleteSubject_Handler,
 		},
@@ -566,6 +706,10 @@ var AuthNZ_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getGroup",
 			Handler:    _AuthNZ_GetGroup_Handler,
+		},
+		{
+			MethodName: "getGroupsBySubjectID",
+			Handler:    _AuthNZ_GetGroupsBySubjectID_Handler,
 		},
 		{
 			MethodName: "updateGroup",

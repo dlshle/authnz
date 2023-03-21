@@ -69,16 +69,32 @@ func (s *server) AddSubject(ctx context.Context, req *pb.AddSubjectRequest) (*pb
 	return s.subjectHandler.AddSubject(ctx, req)
 }
 
-func (s *server) GetSubject(ctx context.Context, req *pb.SubjectByIDRequest) (*pb.Subject, error) {
+func (s *server) GetSubject(ctx context.Context, req *pb.SubjectIDRequest) (*pb.Subject, error) {
 	return s.subjectHandler.GetSubjectByID(req.SubjectId)
 }
 
-func (s *server) DeleteSubject(ctx context.Context, req *pb.SubjectByIDRequest) (*pb.EmptyResponse, error) {
+func (s *server) FindSubjectsByUserID(ctx context.Context, req *pb.SubjectsByUserIDRequest) (*pb.SubjectsByUserIDResponse, error) {
+	pbSubjects, err := s.subjectHandler.FindSubjectsByUserID(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.SubjectsByUserIDResponse{Subjects: pbSubjects}, nil
+}
+
+func (s *server) CreateGroupsForSubjects(ctx context.Context, req *pb.CreateGroupForSubjectsRequest) (*pb.CreateGroupForSubjectsResponse, error) {
+	return s.subjectHandler.CreateGroupsForSubjects(ctx, req.SubjectIds, req.Attributes)
+}
+
+func (s *server) AddSubjectWithAttributes(ctx context.Context, req *pb.AddSubjectWithAttributesRequest) (*pb.AddSubjectWithAttributesResponse, error) {
+	return s.subjectHandler.AddSubjectWithAttributes(ctx, req.UserId, req.Attributes)
+}
+
+func (s *server) DeleteSubject(ctx context.Context, req *pb.SubjectIDRequest) (*pb.EmptyResponse, error) {
 	return s.subjectHandler.DeleteSubject(ctx, req.SubjectId)
 }
 
 func (s *server) CreateGroup(ctx context.Context, req *pb.GroupRequest) (*pb.GroupResponse, error) {
-	return s.groupHandler.CreateGroup(ctx, req)
+	return s.groupHandler.CreateGroup(ctx, req.Group)
 }
 
 func (s *server) GetGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.GroupResponse, error) {
@@ -86,8 +102,16 @@ func (s *server) GetGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.Gr
 	return &pb.GroupResponse{Group: group}, err
 }
 
+func (s *server) GetGroupsBySubjectID(ctx context.Context, req *pb.SubjectIDRequest) (*pb.GroupsResponse, error) {
+	groups, err := s.groupHandler.GetGroupsBySubjectID(ctx, req.SubjectId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GroupsResponse{Groups: groups}, nil
+}
+
 func (s *server) UpdateGroup(ctx context.Context, req *pb.GroupRequest) (*pb.GroupResponse, error) {
-	return s.groupHandler.UpdateGroup(ctx, req)
+	return s.groupHandler.UpdateGroup(ctx, req.Group)
 }
 
 func (s *server) DuplicateGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.GroupResponse, error) {
@@ -95,11 +119,11 @@ func (s *server) DuplicateGroup(ctx context.Context, req *pb.GroupByIDRequest) (
 }
 
 func (s *server) DeleteGroup(ctx context.Context, req *pb.GroupByIDRequest) (*pb.EmptyResponse, error) {
-	return s.groupHandler.DeleteGroup(ctx, req)
+	return s.groupHandler.DeleteGroup(ctx, req.GroupId)
 }
 
 func (s *server) CreatePolicy(ctx context.Context, req *pb.PolicyRequest) (*pb.Policy, error) {
-	return s.policyHandler.CreatePolicy(ctx, req)
+	return s.policyHandler.CreatePolicy(ctx, req.Policy)
 }
 
 func (s *server) GetPolicy(ctx context.Context, req *pb.PolicyByIDRequest) (*pb.Policy, error) {
@@ -107,19 +131,19 @@ func (s *server) GetPolicy(ctx context.Context, req *pb.PolicyByIDRequest) (*pb.
 }
 
 func (s *server) UpdatePolicy(ctx context.Context, req *pb.PolicyRequest) (*pb.Policy, error) {
-	return s.policyHandler.UpdatePolicy(ctx, req)
+	return s.policyHandler.UpdatePolicy(ctx, req.Policy)
 }
 
 func (s *server) DeletePolicy(ctx context.Context, req *pb.PolicyByIDRequest) (*pb.EmptyResponse, error) {
-	return s.policyHandler.DeletePolicy(ctx, req)
+	return s.policyHandler.DeletePolicy(ctx, req.PolicyId)
 }
 
 func (s *server) CreateContract(ctx context.Context, req *pb.ContractRequest) (*pb.ContractResponse, error) {
-	return s.contractHandler.CreateContract(ctx, req)
+	return s.contractHandler.CreateContract(ctx, req.Contract)
 }
 
 func (s *server) DeleteContract(ctx context.Context, req *pb.DeleteContractRequest) (*pb.EmptyResponse, error) {
-	return s.contractHandler.DeleteContract(ctx, req)
+	return s.contractHandler.DeleteContract(ctx, req.ContractId)
 }
 
 func StartServer(serverCfg config.ServerConfig, server pb.AuthNZServer) error {

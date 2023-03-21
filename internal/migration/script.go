@@ -5,7 +5,7 @@ import "github.com/jmoiron/sqlx"
 var v1 = `
 CREATE TABLE IF NOT EXISTS subjects (
     id uuid,
-    payload bytea,
+	user_id varchar(255),
 	PRIMARY KEY ( id )
 );
 

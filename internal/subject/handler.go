@@ -8,6 +8,7 @@ import (
 	"github.com/dlshle/authnz/pkg/store"
 	pb "github.com/dlshle/authnz/proto"
 	"github.com/dlshle/gommon/logging"
+	"github.com/dlshle/gommon/utils"
 )
 
 type Handler struct {
@@ -78,4 +79,78 @@ func (h *Handler) DeleteSubject(ctx context.Context, subjectID string) (*pb.Empt
 
 func (h *Handler) GetSubjectByID(subjectID string) (*pb.Subject, error) {
 	return h.store.Get(subjectID)
+}
+
+func (h *Handler) FindSubjectsByUserID(userID string) ([]*pb.Subject, error) {
+	subjects := []Subject{}
+	err := h.store.WithTX(func(s store.SQLTransactional) error {
+		return s.Select(&subjects, "SELECT * FROM subjects WHERE user_id = $1", userID)
+	})
+	if err != nil {
+		return nil, err
+	}
+	pbSubjects := make([]*pb.Subject, len(subjects), len(subjects))
+	for i, subject := range subjects {
+		pbSubjects[i] = &pb.Subject{Id: subject.ID, UserId: subject.UserID}
+	}
+	return pbSubjects, nil
+}
+
+func (h *Handler) CreateGroupsForSubjects(ctx context.Context, subjectIDs []string, attributes []*pb.Attribute) (*pb.CreateGroupForSubjectsResponse, error) {
+	var (
+		subjects  []*pb.Subject
+		group     *pb.Group
+		contracts []*pb.Contract
+		err       error
+	)
+	err = h.store.WithTX(func(tx store.SQLTransactional) error {
+		return utils.ProcessWithErrors(func() error {
+			// get all subjects that exist
+			subjects, err = h.store.TxBulkGet(tx, subjectIDs)
+			return err
+		}, func() error {
+			// create group
+			group, err = h.groupStore.TxPut(tx, &pb.Group{Attributes: attributes})
+			return err
+		}, func() error {
+			// add contract for each subject
+			for _, subject := range subjects {
+				contract, err := h.contractStore.TxAddNewContract(tx, subject.Id, group.Id)
+				if err != nil {
+					return err
+				}
+				contracts = append(contracts, contract)
+			}
+			return nil
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.CreateGroupForSubjectsResponse{Group: group, Contracts: contracts}, nil
+}
+
+func (h *Handler) AddSubjectWithAttributes(ctx context.Context, userID string, attributes []*pb.Attribute) (*pb.AddSubjectWithAttributesResponse, error) {
+	var (
+		group    *pb.Group
+		subject  *pb.Subject
+		contract *pb.Contract
+		err      error
+	)
+	err = h.store.WithTX(func(tx store.SQLTransactional) error {
+		return utils.ProcessWithErrors(func() error {
+			subject, err = h.store.TxPut(tx, &pb.Subject{UserId: userID})
+			return err
+		}, func() error {
+			group, err = h.groupStore.TxPut(tx, &pb.Group{Attributes: attributes})
+			return err
+		}, func() error {
+			contract, err = h.contractStore.TxAddNewContract(tx, subject.Id, group.Id)
+			return err
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.AddSubjectWithAttributesResponse{Subject: subject, Group: group, ContractId: contract.Id}, nil
 }

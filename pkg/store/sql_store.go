@@ -43,6 +43,24 @@ func (s *SQLPBEntityStore) TxGet(tx SQLTransactional, id string) (*PBEntity, err
 	return &entities[0], err
 }
 
+func (s *SQLPBEntityStore) TxBulkGet(tx SQLTransactional, ids []string) ([]*PBEntity, error) {
+	entities := []PBEntity{}
+	if len(ids) == 0 {
+		return []*PBEntity{}, nil
+	}
+	sql := "SELECT * FROM " + s.tableName + " WHERE id IN " + MakeInQueryClause(ids)
+	logging.GlobalLogger.Infof(context.Background(), "query sql: %s", sql)
+	err := tx.Select(&entities, sql)
+	if err != nil {
+		return nil, err
+	}
+	pbEntities := make([]*PBEntity, len(entities), len(entities))
+	for i, entity := range entities {
+		pbEntities[i] = &entity
+	}
+	return pbEntities, err
+}
+
 func (s *SQLPBEntityStore) Delete(id string) error {
 	return s.TxDelete(s.Db, id)
 }
@@ -86,15 +104,7 @@ func (s *SQLPBEntityStore) TxPut(tx SQLTransactional, entity *PBEntity) (*PBEnti
 }
 
 func (s *SQLPBEntityStore) WithTx(cb func(SQLTransactional) error) error {
-	tx, err := s.Db.Beginx()
-	if err != nil {
-		return err
-	}
-	err = cb(tx)
-	if err != nil {
-		return err
-	}
-	return tx.Commit()
+	return WithSQLXTx(s.Db, cb)
 }
 
 func (s *SQLPBEntityStore) execUpsert(tx SQLTransactional, entity *PBEntity) (sql.Result, error) {
