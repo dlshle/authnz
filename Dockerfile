@@ -11,7 +11,7 @@ RUN go env -w GOPROXY=https://goproxy.cn
 
 WORKDIR /usr/local/goc
 
-RUN go build ./runner/main.go
+RUN go build ./cmd/main.go
 
 RUN mv main /usr/local/app/authz
 # RUN mv config /usr/local/app
