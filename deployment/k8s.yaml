@@ -1,23 +1,16 @@
-# AuthNZ Platform
-AuthNZ platform provides supports for Authentication and Authorization by abstracting flows and entities for common auth mechanisms and providing generalized APIs for authentication and authorization.
-
-## Sample Config File
-```
-server:
-  grpc: localhost:50051
-database:
-  host: postgres.db.host
-  port: 5432
-  db_name: sample_db_name
-  user: authnz
-  pass: ComplexPass!
-```
-
-## To Run on Docker
-`docker run -d -p 50051:50051 --network auth --name authz -config=/path/to/container/config/file`
-
-## To Run on Kubernetes
-```
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authz
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
+  selector:
+    name: authz
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,8 +28,8 @@ spec:
     spec:
       containers:
       - name: app
-        image: docker.registry.com/authz/authz
-        args: ["-config=path/to/config"]
+        image: 192.168.0.164:15000/tucom/authz
+        args: ["-config=/etc/authz/config.yaml"]
         imagePullPolicy: Always
         #resources:
           #requests:
@@ -47,6 +40,10 @@ spec:
             #memory: "1Gi"
         ports:
           - containerPort: 50051
+        volumeMounts:
+          - mountPath: /etc/authz/config.yaml
+            name: authz
+            subPath: config.yaml
         env:
           - name: NODE_NAME
             valueFrom:
@@ -64,4 +61,26 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-```
+      volumes:
+        - name: authz
+          configMap:
+            name: authz-configmap
+            items:
+              - key: authz_config
+                path: authz.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authz-configmap
+data:
+  authz_config: |-
+    server:
+      grpc: localhost:50051
+    database:
+      host: 192.168.0.164
+      port: 15432
+      db_name: authnz
+      user: authnz
+      pass: 19950416
+

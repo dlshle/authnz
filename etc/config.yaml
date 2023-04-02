@@ -1,7 +1,6 @@
 server:
   grpc: localhost:50051
 database:
-  # url: postgresql://authnz:19950416@192.168.0.164:15432/defaultdb?database=authnz
   host: 192.168.0.164
   port: 15432
   db_name: authnz

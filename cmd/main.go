@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 
 	"github.com/dlshle/authnz/internal/config"
@@ -17,7 +18,12 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load("./etc/config.yaml")
+	var (
+		configPath string
+	)
+	flag.StringVar(&configPath, "config", "./etc/config.yaml", "path to the config file")
+	flag.Parse()
+	cfg, err := config.Load(configPath)
 	if err != nil {
 		panic(err)
 	}
